@@ -8,7 +8,8 @@ import subprocess
 
 selects_folder = raw_input('paste SELECTS folder name here: >>  ')
 
-metadata_csv_path = './{}/photoshoot_{}_metadata.csv'.format(selects_folder, selects_folder[-13:-8])
+metadata_csv_path = '/{}/photoshoot_{}_metadata.csv'.format(selects_folder, selects_folder[-13:-8])
+
 
 # print(metadata_csv_path)
 
@@ -21,7 +22,7 @@ def open_csv(csv_path):
         return skus_from_photo_app
 
 def load_file_names(selects_path):
-    path = './{}'.format(selects_path)
+    path = '{}'.format(selects_path)
     dirs = os.listdir(path)
     file_names = [file for file in dirs]
     return file_names
@@ -33,18 +34,20 @@ def check_selects_folder(csv_names, processed_names):
 
     if not len(not_processed):
         print("No Errors!")
-        #subprocess.call(['ingest.sh', selects_folder])
+        subprocess.call(['ingest.sh', selects_folder])
         #break
     else:
         for file_name in not_processed:
             print(file_name)
     
-    user_continue = raw_input("Press return to scan again, or enter x to exit")
+    user_continue = raw_input("Press return to scan again, or enter x to exit: ")
 
     if user_continue.lower() == 'x':
         print("thanks!")
     else: 
-        check_selects_folder(csv_names, processed_names)
+        recheck_sv_file_names = open_csv(metadata_csv_path)
+        recheck_processed_file_names = load_file_names(selects_folder)
+        check_selects_folder(recheck_sv_file_names, recheck_processed_file_names)
 
 csv_file_names = open_csv(metadata_csv_path)
 processed_file_names = load_file_names(selects_folder)
