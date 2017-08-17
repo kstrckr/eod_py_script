@@ -7,6 +7,7 @@ import os, sys
 import subprocess
 
 selects_folder = raw_input('paste SELECTS folder name here: >>  ')
+selects_folder = selects_folder.strip()
 
 metadata_csv_path = '/{}/photoshoot_{}_metadata.csv'.format(selects_folder, selects_folder[-13:-8])
 
@@ -22,7 +23,7 @@ def open_csv(csv_path):
         return skus_from_photo_app
 
 def load_file_names(selects_path):
-    path = '{}'.format(selects_path)
+    path = selects_path
     dirs = os.listdir(path)
     file_names = [file for file in dirs]
     return file_names
@@ -43,7 +44,7 @@ def check_selects_folder(csv_names, processed_names):
     user_continue = raw_input("Press return to scan again, or enter x to exit: ")
 
     if user_continue.lower() == 'x':
-        print("thanks!")
+        print("have a GREAT day!")
     else: 
         recheck_sv_file_names = open_csv(metadata_csv_path)
         recheck_processed_file_names = load_file_names(selects_folder)
