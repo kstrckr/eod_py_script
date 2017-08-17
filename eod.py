@@ -1,7 +1,10 @@
 #! /usr/bin/python
 
+#! /usr/bin/python
+
 import csv
 import os, sys
+import subprocess
 
 selects_folder = raw_input('paste SELECTS folder name here: >>  ')
 
@@ -9,23 +12,43 @@ metadata_csv_path = './{}/photoshoot_{}_metadata.csv'.format(selects_folder, sel
 
 # print(metadata_csv_path)
 
-with open(metadata_csv_path, 'rb') as input:
-    reader = csv.reader(input)
-    photoshoot_app_skus = list(reader)
+def open_csv(csv_path):
+    with open(csv_path, 'rb') as input:
+        reader = csv.reader(input)
+        photoshoot_app_skus = list(reader)
+        del photoshoot_app_skus[0]
+        skus_from_photo_app = [sku[0] for sku in photoshoot_app_skus]
+        return skus_from_photo_app
 
-del photoshoot_app_skus[0]
+def load_file_names(selects_path):
+    path = './{}'.format(selects_path)
+    dirs = os.listdir(path)
+    file_names = [file for file in dirs]
+    return file_names
 
-skus_from_photo_app = [sku[0] for sku in photoshoot_app_skus]
 
-path = './{}'.format(selects_folder)
-dirs = os.listdir(path)
+def check_selects_folder(csv_names, processed_names):
+    not_processed = set(csv_names) - set(processed_names)
+    # named_wrong = set(processed_file_names) - set(skus_from_photo_app)
 
-processed_file_names = [file for file in dirs]
+    if not len(not_processed):
+        print("No Errors!")
+        #subprocess.call(['ingest.sh', selects_folder])
+        #break
+    else:
+        for file_name in not_processed:
+            print(file_name)
+    
+    user_continue = raw_input("Press return to scan again, or enter x to exit")
 
-not_processed = set(skus_from_photo_app) - set(processed_file_names)
-named_wrong = set(processed_file_names) - set(skus_from_photo_app)
+    if user_continue.lower() == 'x':
+        print("thanks!")
+    else: 
+        check_selects_folder(csv_names, processed_names)
 
-for file_name in not_processed:
-    print file_name
+csv_file_names = open_csv(metadata_csv_path)
+processed_file_names = load_file_names(selects_folder)
+check_selects_folder(csv_file_names, processed_file_names)
+
 # print '/n' * 3
 # print named_wrong
