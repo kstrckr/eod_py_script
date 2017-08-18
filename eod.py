@@ -34,17 +34,18 @@ def check_selects_folder(csv_names, processed_names):
     # named_wrong = set(processed_file_names) - set(skus_from_photo_app)
 
     if not len(not_processed):
-        print("No Errors!")
+        print("\033[32mNo Errors!\033[0m")
         subprocess.call(['ingest.sh', selects_folder])
-        #break
+        sys.exit()
     else:
+        print('\033[31mThe folowing files are missing:\033[0m')
         for file_name in not_processed:
-            print(file_name)
+            print('\033[31m{}\033[0m'.format(file_name))
     
     user_continue = raw_input("Press return to scan again, or enter x to exit: ")
 
     if user_continue.lower() == 'x':
-        print("have a GREAT day!")
+        print("\033[32mHave a GREAT day!\033[0m")
     else: 
         recheck_sv_file_names = open_csv(metadata_csv_path)
         recheck_processed_file_names = load_file_names(selects_folder)
