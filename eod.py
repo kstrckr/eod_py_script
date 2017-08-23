@@ -63,6 +63,6 @@ def check_selects_folder(csv_names, processed_names):
         recheck_processed_file_names = load_file_names(selects_folder)
         check_selects_folder(recheck_sv_file_names, recheck_processed_file_names)
 
-csv_file_names = open_csv(metadata_csv_path)
-processed_file_names = load_file_names(selects_folder)
-check_selects_folder(csv_file_names, processed_file_names)
+CSV_FILE_NAMES = open_csv(metadata_csv_path)
+PROCESSED_FILE_NAMES = load_file_names(selects_folder)
+check_selects_folder(CSV_FILE_NAMES, PROCESSED_FILE_NAMES)
