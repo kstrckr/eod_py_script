@@ -32,7 +32,7 @@ def parse_paths(path_arg=None):
         selects_folder = path_arg.strip()
     else:
         print('type QUIT to exit or')
-        selects_folder = input('drag SELECTS folder into window and press ENTER: >>  ')
+        selects_folder = raw_input('drag SELECTS folder into window and press ENTER: >>  ')
         if selects_folder.lower() == 'quit':
             exit()
         elif not selects_folder:
@@ -57,15 +57,15 @@ def open_csv(csv_path):
             del photoshoot_app_skus[0]
             skus_from_photo_app = [sku[0] for sku in photoshoot_app_skus]
             return skus_from_photo_app
-    except FileNotFoundError:
+    except IOError:
         print('No CSV found at \033[31m{}\033[0m, or path to SELECTS is wrong\n'
               'Make sure the CSV is in the correct location and the path is correct:'.format(csv_path))
-        user_prompt = input('Press ENTER to try again or enter QUIT to exit: >>  ')
+        user_prompt = raw_input('Press ENTER to try again or enter QUIT to exit: >>  ')
         if user_prompt.lower() == 'quit':
             print("\033[32mEOD process ended\033[0m")
             exit()
         else:
-            open_csv(csv_path)
+            return open_csv(csv_path)
 
 def load_file_names(selects_path):
     """returns a list of processed filenames from the SELECTS folder"""
@@ -85,16 +85,17 @@ def check_selects_folder(csv_names, processed_names, selects_folder_path):
     # named_wrong = set(processed_file_names) - set(skus_from_photo_app)
 
     if not not_processed:
-        print("\033[32mNo Errors!\033[0m")
+        print("\033[32mNo Missing Files!\033[0m")
         #subprocess.call(['ingest.sh', SELECTS_FOLDER_PATH])
-        print("\033[37;42mINGEST COMPLETE\033[0m")
+        #the empty new lines are included so you can see if the script has completed ingestion from across the room
+        print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
         sys.exit()
     else:
         print('\033[31mThe folowing files are missing:\033[0m')
         for file_name in not_processed:
             print('\033[31m{}\033[0m'.format(file_name))
 
-    user_continue = input("Press return to scan again, or enter QUIT to exit: ")
+    user_continue = raw_input("Press return to scan again, or enter QUIT to exit: ")
 
     if user_continue.lower() == 'x':
         print("\033[32mEOD process ended\033[0m")
