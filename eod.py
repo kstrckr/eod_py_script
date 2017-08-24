@@ -1,5 +1,9 @@
 #! /usr/bin/python
 
+#Kurt Strecker
+#kstrecker@gilt.com
+# v0.8 - 8/24/2017
+
 import csv
 import os
 import sys
@@ -8,7 +12,7 @@ import argparse
 
 
 def clear_screen():
-    """clears screen"""
+    """clears the screen"""
     os.system('cls' if os.name =='nt' else 'clear')
 
 def parse_the_args():
@@ -42,12 +46,20 @@ def parse_paths(path_arg=None):
 
 def open_csv(csv_path):
     """loads the photoshoot app's csv file, returns only a list of SKU filenames"""
-    with open(csv_path, 'rb') as input:
-        reader = csv.reader(input)
-        photoshoot_app_skus = list(reader)
-        del photoshoot_app_skus[0]
-        skus_from_photo_app = [sku[0] for sku in photoshoot_app_skus]
-        return skus_from_photo_app
+    try:
+        with open(csv_path, 'rb') as csv_data:
+            reader = csv.reader(csv_data)
+            photoshoot_app_skus = list(reader)
+            del photoshoot_app_skus[0]
+            skus_from_photo_app = [sku[0] for sku in photoshoot_app_skus]
+            return skus_from_photo_app
+    except FileNotFoundError:
+        print('No CSV found at {}.\nMake sure the CSV is in the correct location and:'.format(csv_path))
+        user_prompt = input('Press ENTER to try again or enter QUIT to exit: >>  ')
+        if user_prompt.lower() == 'quit':
+            exit()
+        else:
+            open_csv(csv_path)
 
 def load_file_names(selects_path):
     """returns a list of processed filenames from the SELECTS folder"""
