@@ -4,18 +4,39 @@ import csv
 import os
 import sys
 import subprocess
+import argparse
+
 
 def clear_screen():
     """clears screen"""
     os.system('cls' if os.name =='nt' else 'clear')
 
-clear_screen()
+def parse_the_args():
+    parser = argparse.ArgumentParser(
+        description="pre-check the selects folder for completeness before ingestion"
+        )
+    parser.add_argument('-p', '--path', help="pass the url from root to your SELECTS folder")
+    args = parser.parse_args()
+    return args.path
 
-selects_folder = raw_input('drag SELECTS folder into window and press ENTER: >>  ')
-selects_folder = selects_folder.strip()
+def parse_paths(path_arg=None):
 
-metadata_csv_path = '/{}/photoshoot_{}_metadata.csv'.format(selects_folder, selects_folder[-13:-8])
+    if path_arg:
+        selects_folder = path_arg.strip()
+    else:
+        print('type QUIT to exit or')
+        selects_folder = input('drag SELECTS folder into window and press ENTER: >>  ')
+        if selects_folder.lower() == 'quit':
+            exit()
+        elif not selects_folder:
+            clear_screen()
+            print("must drag SELECTS folder into window or type QUIT to exit\n\n")
+            parse_paths()
+        selects_folder = selects_folder.strip()
 
+    metadata_csv_path = '/{}/photoshoot_{}_metadata.csv'.format(selects_folder, selects_folder[-13:-8])
+
+    return (selects_folder, metadata_csv_path)
 
 # print(metadata_csv_path)
 
@@ -46,7 +67,7 @@ def check_selects_folder(csv_names, processed_names):
 
     if not not_processed:
         print("\033[32mNo Errors!\033[0m")
-        subprocess.call(['ingest.sh', selects_folder])
+        #subprocess.call(['ingest.sh', SELECTS_FOLDER_PATH])
         print("\033[37;42mINGEST COMPLETE\033[0m")
         sys.exit()
     else:
@@ -54,15 +75,21 @@ def check_selects_folder(csv_names, processed_names):
         for file_name in not_processed:
             print('\033[31m{}\033[0m'.format(file_name))
     
-    user_continue = raw_input("Press return to scan again, or enter x to exit: ")
+    user_continue = input("Press return to scan again, or enter x to exit: ")
 
     if user_continue.lower() == 'x':
         print("\033[32mHave a GREAT day!\033[0m")
     else: 
-        recheck_sv_file_names = open_csv(metadata_csv_path)
-        recheck_processed_file_names = load_file_names(selects_folder)
+        recheck_sv_file_names = open_csv(METADATA_PATH)
+        recheck_processed_file_names = load_file_names(SELECTS_FOLDER_PATH)
         check_selects_folder(recheck_sv_file_names, recheck_processed_file_names)
 
-CSV_FILE_NAMES = open_csv(metadata_csv_path)
-PROCESSED_FILE_NAMES = load_file_names(selects_folder)
+
+clear_screen()
+
+ARG_PATH = parse_the_args()
+SELECTS_FOLDER_PATH, METADATA_PATH = parse_paths(ARG_PATH)
+
+CSV_FILE_NAMES = open_csv(METADATA_PATH)
+PROCESSED_FILE_NAMES = load_file_names(SELECTS_FOLDER_PATH)
 check_selects_folder(CSV_FILE_NAMES, PROCESSED_FILE_NAMES)
