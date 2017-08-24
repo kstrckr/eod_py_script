@@ -82,11 +82,11 @@ def check_selects_folder(csv_names, processed_names, selects_folder_path):
     """
     print('checking {}'.format(selects_folder_path))
     not_processed = set(csv_names) - set(processed_names)
-    # named_wrong = set(processed_file_names) - set(skus_from_photo_app)
+    named_wrong = set(sku for sku in processed_names if sku[-1] == "g") - set(csv_names)
 
     if not not_processed:
         print("\033[32mNo Missing Files!\033[0m")
-        #subprocess.call(['ingest.sh', SELECTS_FOLDER_PATH])
+        subprocess.call(['ingest.sh', SELECTS_FOLDER_PATH])
         #the empty new lines are included so you can see if the script has completed ingestion from across the room
         print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
         sys.exit()
@@ -95,9 +95,13 @@ def check_selects_folder(csv_names, processed_names, selects_folder_path):
         for file_name in not_processed:
             print('\033[31m{}\033[0m'.format(file_name))
 
+        print('\n\033[34mThe following files don\'t belong in the SELECTS folder\033[0m')
+        for file_name in named_wrong:
+            print('\033[34m{}\033[0m'.format(file_name))
+
     user_continue = raw_input("Press return to scan again, or enter QUIT to exit: ")
 
-    if user_continue.lower() == 'x':
+    if user_continue.lower() == 'quit':
         print("\033[32mEOD process ended\033[0m")
     else:
         recheck_sv_file_names = open_csv(METADATA_PATH)
