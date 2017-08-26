@@ -9,7 +9,7 @@ import os
 import sys
 import subprocess
 import argparse
-
+import glob
 
 def clear_screen():
     """clears the screen"""
@@ -31,7 +31,7 @@ def parse_paths(path_arg=None):
     if path_arg:
         selects_folder = path_arg.strip()
     else:
-        print('type QUIT to exit or')
+        print('type QUIT to exit or,')
         selects_folder = raw_input('drag SELECTS folder into window and press ENTER: >>  ')
         if selects_folder.lower() == 'quit':
             exit()
