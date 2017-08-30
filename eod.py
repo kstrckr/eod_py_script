@@ -74,6 +74,14 @@ def load_file_names(selects_path):
     file_names = [file for file in dirs]
     return file_names
 
+def ingest_via_ingestsh(selects_folder_path):
+    #This works! need to add a literal zm ingest call to get ingest stdout
+    proc = subprocess.Popen(['ingest.sh', selects_folder_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    while proc.poll() is None:
+        line = proc.stdout.readline()
+        if line:
+            print("\033[37m>>>{}\033[0m".format(line.strip()))
 
 def check_selects_folder(csv_names, processed_names, selects_folder_path):
     """finds the difference between the photoshoot app's CSV file skus and the processed skus.
@@ -86,7 +94,8 @@ def check_selects_folder(csv_names, processed_names, selects_folder_path):
 
     if not not_processed:
         print("\033[32mNo Missing Files!\033[0m")
-        subprocess.call(['ingest.sh', SELECTS_FOLDER_PATH])
+        #subprocess.call(['ingest.sh', SELECTS_FOLDER_PATH])
+        ingest_via_ingestsh(selects_folder_path)
         #the empty new lines are included so you can see if the script has completed ingestion from across the room
         print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
         sys.exit()
