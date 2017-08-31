@@ -2,7 +2,7 @@
 
 #Kurt Strecker
 #kstrecker@gilt.com
-# v0.8 - 8/24/2017
+# v0.9 - 8/31/2017
 
 import csv
 import os
