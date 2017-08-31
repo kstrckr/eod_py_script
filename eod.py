@@ -74,6 +74,17 @@ def load_file_names(selects_path):
     file_names = [file for file in dirs]
     return file_names
 
+def check_dam(METADATA_PATH):
+    dam_check_process = subprocess.Popen(["zm", "find", '-n', METADATA_PATH[-29:]], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    out_err, out_data = dam_check_process.communicate()
+    
+    output_lines = out_data.split(os.linesep)
+    uploaded_assets = output_lines[-3][16:]
+    print('DAM verified with {} uploaded assets'.format(uploaded_assets))
+    
+
+
+
 
 def check_selects_folder(csv_names, processed_names, selects_folder_path):
     """finds the difference between the photoshoot app's CSV file skus and the processed skus.
@@ -88,6 +99,7 @@ def check_selects_folder(csv_names, processed_names, selects_folder_path):
         print("\033[32mNo Missing Files!\033[0m")
         subprocess.call(['ingest.sh', SELECTS_FOLDER_PATH])
         #the empty new lines are included so you can see if the script has completed ingestion from across the room
+        check_dam("photoshoot_10697_metadata.csv")
         print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
         sys.exit()
     else:
