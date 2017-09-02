@@ -15,6 +15,10 @@ def print_progress_bar(final_length):
     while proc.poll() is None:
         line = proc.stdout.readline().decode()
         if line:
-            print("\033[37m{}\033[0m".format(line.strip()))
+            clear_screen()
+            #print("\033[37m{}\033[0m".format(line.strip()))
+            
+            print('|' * int(line.strip()[0]) + '_' * (9-int(line.strip()[0])))
+
 
 print_progress_bar(10)
