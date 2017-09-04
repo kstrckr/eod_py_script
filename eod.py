@@ -2,18 +2,18 @@
 
 #Kurt Strecker
 #kstrecker@gilt.com
-# v0.8 - 8/24/2017
+# v0.8 - 09/03/2017
 
 import csv
 import os
 import sys
 import subprocess
 import argparse
-import glob
+#import glob
 
 def clear_screen():
     """clears the screen"""
-    os.system('cls' if os.name =='nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 def parse_the_args():
     """checks for the option PATH argument and returns the path if present"""
@@ -25,9 +25,10 @@ def parse_the_args():
     return args.path
 
 def parse_paths(path_arg=None):
-    """if path_arg is passed from the eod.py execution it's used, if no arguments provided 
+    """if path_arg is passed from the eod.py execution it's used, if no arguments provided
     it will prompt the user to drag the SELECTS folder into the terminal window
     """
+
     if path_arg:
         selects_folder = path_arg.strip()
     else:
@@ -83,7 +84,11 @@ def ingest_via_ingestsh(selects_folder_path):
         if line:
             print("\033[37m>>>{}\033[0m".format(line.strip()))
 
-def check_selects_folder(csv_names, processed_names, selects_folder_path):
+def check_selects_folder(
+        csv_names,
+        processed_names,
+        selects_folder_path
+    ):
     """finds the difference between the photoshoot app's CSV file skus and the processed skus.
     prints the difference to the screen so that they can be found and processed correctly
     prompts the user to re-scan after fixing errors to verify nothing is still missing.
@@ -104,9 +109,10 @@ def check_selects_folder(csv_names, processed_names, selects_folder_path):
         for file_name in not_processed:
             print('\033[31m{}\033[0m'.format(file_name))
 
-        print('\n\033[34mThe following files don\'t belong in the SELECTS folder\033[0m')
-        for file_name in named_wrong:
-            print('\033[34m{}\033[0m'.format(file_name))
+        if named_wrong:
+            print('\n\033[34mThe following files don\'t belong in the SELECTS folder\033[0m')
+            for file_name in named_wrong:
+                print('\033[34m{}\033[0m'.format(file_name))
 
     user_continue = raw_input("Press return to scan again, or enter QUIT to exit: ")
 
