@@ -4,7 +4,7 @@ import random
 
 num = 1
 
-for num in range(1,61):
+for num in range(1,16):
     time.sleep(random.randint(1, 2))
     print('{} Beep!'.format(num))
     num+=1

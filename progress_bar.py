@@ -25,7 +25,7 @@ class Spinner:
         return output
 
 
-def print_progress_bar(final_length):
+def print_progress_bar(input_complete_length, bar_display_length):
 
     python_call = ['python', 'fake_input.py']
     spinner = Spinner()
@@ -38,14 +38,16 @@ def print_progress_bar(final_length):
         line = proc.stdout.readline().decode()
         if line:
             current_progress += 1
-            percent_complete = int((current_progress/final_length) * 100)
-            progress_bar_now = math.floor(0.1 * percent_complete)
-            progress_bar_viz = '|' * int(progress_bar_now) + '_' * (9-int(progress_bar_now))
+            percent_complete = int((current_progress/input_complete_length
+        ) * 100)
+            progress_bar_now = math.floor((bar_display_length * 0.01) * percent_complete)
+            progress_bar_viz = '|' * int(progress_bar_now) + '_' * (bar_display_length-int(progress_bar_now))
             spinner_viz = spinner.update_spinner()
-            final_output = '[{}]\n{}/{} {}%\n{}'.format(spinner_viz,current_progress, final_length, percent_complete, progress_bar_viz)
+            final_output = '[{}]\n{}/{} {}%\n{}'.format(spinner_viz, current_progress, input_complete_length
+        , percent_complete, progress_bar_viz)
             clear_screen()
             print(final_output)
             #print("\033[37m{}\033[0m".format(line.strip()))
 
 
-print_progress_bar(60)
+print_progress_bar(15, 80)
