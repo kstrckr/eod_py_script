@@ -24,14 +24,11 @@ class Spinner:
         output = self.spinner_state[self.spinner_now]
         return output
 
-
 def print_progress_bar(input_complete_length, bar_display_length):
 
     python_call = ['python', 'fake_input.py']
     spinner = Spinner()
     current_progress = 0
-    
-
     proc = subprocess.Popen(python_call, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
     while proc.poll() is None:
@@ -48,6 +45,5 @@ def print_progress_bar(input_complete_length, bar_display_length):
             clear_screen()
             print(final_output)
             #print("\033[37m{}\033[0m".format(line.strip()))
-
 
 print_progress_bar(15, 80)
