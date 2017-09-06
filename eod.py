@@ -2,13 +2,14 @@
 
 #Kurt Strecker
 #kstrecker@gilt.com
-# v0.8 - 09/03/2017
+# v0.8 - 09/06/2017
 
 import csv
 import os
 import sys
 import subprocess
 import argparse
+import re
 #import glob
 
 def clear_screen():
@@ -75,6 +76,27 @@ def load_file_names(selects_path):
     file_names = [file for file in dirs]
     return file_names
 
+def update_csv(csv_path, selects_folder_name):
+
+    new_rows = []
+    selects_folder = re.search(r'\d{2}_\d{2}_\d{4}_KY_STUDIO_\d{2}_\d+_SELECTS', selects_folder_name)
+
+    with open (csv_path, 'r') as csv_data:
+        reader = csv.reader(csv_data)
+        header = reader.next()
+        new_rows.append(header)
+        
+        for row in reader:
+            new_row = row
+            new_sku = "{}/{}".format(selects_folder.group(0), row[0])
+            new_row[0] = new_sku
+            new_rows.append(new_row)
+
+
+    with open (csv_path, 'w') as csv_output:
+        writer = csv.writer(csv_output)
+        writer.writerows(new_rows)
+
 def ingest_via_ingestsh(selects_folder_path):
     #This works! need to add a literal zm ingest call to get ingest stdout
     proc = subprocess.Popen(['ingest.sh', selects_folder_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -131,4 +153,7 @@ SELECTS_FOLDER_PATH, METADATA_PATH = parse_paths(ARG_PATH)
 
 CSV_FILE_NAMES = open_csv(METADATA_PATH)
 PROCESSED_FILE_NAMES = load_file_names(SELECTS_FOLDER_PATH)
-check_selects_folder(CSV_FILE_NAMES, PROCESSED_FILE_NAMES, SELECTS_FOLDER_PATH)
+
+update_csv(METADATA_PATH, SELECTS_FOLDER_PATH)
+
+#check_selects_folder(CSV_FILE_NAMES, PROCESSED_FILE_NAMES, SELECTS_FOLDER_PATH)
