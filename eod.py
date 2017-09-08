@@ -2,7 +2,7 @@
 
 #Kurt Strecker
 #kstrecker@gilt.com
-# v0.8 - 09/06/2017
+# v0.8 - 09/08/2017
 
 import csv
 import os
@@ -10,7 +10,26 @@ import sys
 import subprocess
 import argparse
 import re
-#import glob
+
+
+class VmLogin:
+    def __init__(self, user_name, password, environment):
+        self.user_name = user_name
+        self.password = password
+        self.environment = environment
+
+    def authenticate(self):
+        subprocess.call([
+            'zm',
+            '-s',
+            self.environment,
+            '--username',
+            self.user_name,
+            '--password',
+            self.password, 
+            'getcredentials'])
+
+
 
 def clear_screen():
     """clears the screen"""
@@ -79,7 +98,9 @@ def load_file_names(selects_path):
 def update_csv(csv_path, selects_folder_name):
 
     new_rows = []
-    selects_folder = re.search(r'\d{2}_\d{2}_\d{4}_KY_STUDIO_\d{2}_\d+_SELECTS', selects_folder_name)
+    print(selects_folder_name)
+    selects_folder = re.search(r'\d{2}_\d{2}_\d{4}_KY_STUDIO_\d{2}\w?_\d+_SELECTS', selects_folder_name)
+    print(selects_folder)
 
     with open (csv_path, 'r') as csv_data:
         reader = csv.reader(csv_data)
@@ -97,6 +118,8 @@ def update_csv(csv_path, selects_folder_name):
         writer = csv.writer(csv_output)
         writer.writerows(new_rows)
 
+    return selects_folder.group(0)
+
 def ingest_via_ingestsh(selects_folder_path):
     #This works! need to add a literal zm ingest call to get ingest stdout
     proc = subprocess.Popen(['ingest.sh', selects_folder_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -105,6 +128,36 @@ def ingest_via_ingestsh(selects_folder_path):
         line = proc.stdout.readline()
         if line:
             print("\033[37m>>>{}\033[0m".format(line.strip()))
+
+def direct_ingest(
+    selects_folder_path,
+    environment,
+    csv_path,
+    selects_folder_name):
+
+    print('ingestion started')
+    message = 'studio ingestion 09/08/17'
+    destination_path = "/Studio Transfer/Product/FIFO/"
+
+    arg_list = [
+        'zm',
+        '-s',
+        environment,
+        'import',
+        '-csv',
+        '-mf',
+        csv_path,
+        '-d',
+        destination_path,
+        '-m',
+        message,
+        '{}/.'.format(selects_folder_name)
+    ]
+
+    
+    subprocess.Popen(arg_list, cwd='{}/..'.format(selects_folder_path))
+    print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
+    sys.exit()
 
 def check_selects_folder(
         csv_names,
@@ -120,12 +173,15 @@ def check_selects_folder(
     named_wrong = set(sku for sku in processed_names if sku[-1] == "g") - set(csv_names)
 
     if not not_processed:
+
+        
         print("\033[32mNo Missing Files!\033[0m")
+        return True
         #subprocess.call(['ingest.sh', SELECTS_FOLDER_PATH])
-        ingest_via_ingestsh(selects_folder_path)
+        #ingest_via_ingestsh(selects_folder_path)
         #the empty new lines are included so you can see if the script has completed ingestion from across the room
-        print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
-        sys.exit()
+        #print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
+        #sys.exit()
     else:
         print('\033[31mThe folowing files are missing:\033[0m')
         for file_name in not_processed:
@@ -154,6 +210,10 @@ SELECTS_FOLDER_PATH, METADATA_PATH = parse_paths(ARG_PATH)
 CSV_FILE_NAMES = open_csv(METADATA_PATH)
 PROCESSED_FILE_NAMES = load_file_names(SELECTS_FOLDER_PATH)
 
-update_csv(METADATA_PATH, SELECTS_FOLDER_PATH)
+SELECT_FOLDER_NAME = update_csv(METADATA_PATH, SELECTS_FOLDER_PATH)
 
-#check_selects_folder(CSV_FILE_NAMES, PROCESSED_FILE_NAMES, SELECTS_FOLDER_PATH)
+dam = VmLogin('username', 'password', 'environment')
+dam.authenticate()
+
+if check_selects_folder(CSV_FILE_NAMES, PROCESSED_FILE_NAMES, SELECTS_FOLDER_PATH):
+    direct_ingest(SELECTS_FOLDER_PATH, 'environment', METADATA_PATH, SELECT_FOLDER_NAME)
