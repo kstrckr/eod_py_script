@@ -1,3 +1,5 @@
+import re
+
 fake_data = ['Preview Start: /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7627233_A.jpg (5 MBytes)',
              'Preview Start: /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7627233_C.jpg (4.65 MBytes)',
              'Preview Start: /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7627233_B.jpg (9.82 MBytes)',
@@ -134,10 +136,10 @@ fake_data = ['Preview Start: /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7627233_A.j
              'Preview Done:  /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767307_B.jpg (26 KBytes)',
              'Preview Start: /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767308_A.jpg (6.84 MBytes)',
              'Preview Done:  /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767306_C.jpg (16 KBytes)',
-             'Preview Start: /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767308_ACOMP1.jpg (6.91 MBytes)',
+             'Preview Start: /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767308_BCOMP1.jpg (6.91 MBytes)',
              'Preview Done:  /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767308_A.jpg (15 KBytes)',
              'Preview Start: /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767308_B.jpg (10.69 MBytes)',
-             'Preview Done:  /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767308_ACOMP1.jpg (17 KBytes)',
+             'Preview Done:  /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767308_BCOMP2.jpg (17 KBytes)',
              'Preview Start: /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767308_C.jpg (5.8 MBytes)',
              'Preview Done:  /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767307_C.jpg (16 KBytes)',
              'Preview Start: /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767309_A.jpg (6.1 MBytes)',
@@ -310,3 +312,8 @@ fake_data = ['Preview Start: /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7627233_A.j
              'Preview Done:  /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767381_B.jpg (27 KBytes)',
              'Preview Done:  /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767380_C.jpg (19 KBytes)',
              'Preview Done:  /09_08_2017_KY_STUDIO_15A_10732_SELECTS/7767381_C.jpg (18 KBytes)',]
+
+for line in fake_data:
+    if re.match(r'\w*\sDone', line, re.I):
+        uploaded_file = re.search(r'(?P<filename>\d+_\w+\d?.jpg)', line, re.I)
+        print(uploaded_file.group('filename'))
