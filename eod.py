@@ -26,7 +26,7 @@ class VmLogin:
             '--username',
             self.user_name,
             '--password',
-            self.password, 
+            self.password,
             'getcredentials'])
 
 
@@ -99,14 +99,16 @@ def update_csv(csv_path, selects_folder_name):
 
     new_rows = []
     print(selects_folder_name)
-    selects_folder = re.search(r'\d{2}_\d{2}_\d{4}_KY_STUDIO_\d{2}\w?_\d+_SELECTS', selects_folder_name)
-    print(selects_folder)
+    selects_folder = re.search(
+        r'\d{2}_\d{2}_\d{4}_KY_STUDIO_\d{2}\w?_\d+_SELECTS',
+        selects_folder_name)
+    #print(selects_folder.group(0))
 
-    with open (csv_path, 'r') as csv_data:
+    with open(csv_path, 'r') as csv_data:
         reader = csv.reader(csv_data)
         header = reader.next()
         new_rows.append(header)
-        
+
         for row in reader:
             new_row = row
             new_sku = "{}/{}".format(selects_folder.group(0), row[0])
@@ -114,7 +116,7 @@ def update_csv(csv_path, selects_folder_name):
             new_rows.append(new_row)
 
 
-    with open (csv_path, 'w') as csv_output:
+    with open(csv_path, 'w') as csv_output:
         writer = csv.writer(csv_output)
         writer.writerows(new_rows)
 
@@ -130,10 +132,10 @@ def ingest_via_ingestsh(selects_folder_path):
             print("\033[37m>>>{}\033[0m".format(line.strip()))
 
 def direct_ingest(
-    selects_folder_path,
-    environment,
-    csv_path,
-    selects_folder_name):
+        selects_folder_path,
+        environment,
+        csv_path,
+        selects_folder_name):
 
     print('ingestion started')
     message = 'studio ingestion 09/08/17'
@@ -154,8 +156,7 @@ def direct_ingest(
         '{}/.'.format(selects_folder_name)
     ]
 
-    
-    subprocess.Popen(arg_list, cwd='{}/..'.format(selects_folder_path))
+    import_proc = subprocess.Popen(arg_list, cwd='{}/..'.format(selects_folder_path))
     print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
     sys.exit()
 
@@ -174,7 +175,6 @@ def check_selects_folder(
 
     if not not_processed:
 
-        
         print("\033[32mNo Missing Files!\033[0m")
         return True
         #subprocess.call(['ingest.sh', SELECTS_FOLDER_PATH])
@@ -212,8 +212,8 @@ PROCESSED_FILE_NAMES = load_file_names(SELECTS_FOLDER_PATH)
 
 SELECT_FOLDER_NAME = update_csv(METADATA_PATH, SELECTS_FOLDER_PATH)
 
-dam = VmLogin('username', 'password', 'environment')
-dam.authenticate()
+DAM = VmLogin('username', 'password', 'environment')
+DAM.authenticate()
 
 if check_selects_folder(CSV_FILE_NAMES, PROCESSED_FILE_NAMES, SELECTS_FOLDER_PATH):
     direct_ingest(SELECTS_FOLDER_PATH, 'environment', METADATA_PATH, SELECT_FOLDER_NAME)
