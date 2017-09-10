@@ -67,24 +67,26 @@ def parse_paths(path_arg=None):
     """
 
     if path_arg:
-        selects_folder = path_arg.strip()
+        selects_folder_path = path_arg.strip()
     else:
         print('type QUIT to exit or,')
-        selects_folder = raw_input('drag SELECTS folder into window and press ENTER: >>  ')
+        selects_folder_path = raw_input('drag SELECTS folder into window and press ENTER: >>  ')
         if selects_folder.lower() == 'quit':
             exit()
-        elif not selects_folder:
+        elif not selects_folder_path:
             clear_screen()
             print("must drag SELECTS folder into window or type QUIT to exit\n\n")
             parse_paths()
-        selects_folder = selects_folder.strip()
+        selects_folder_path = selects_folder_path.strip()
 
     metadata_csv_path = '/{}/photoshoot_{}_metadata.csv'.format(
-        selects_folder, selects_folder[-13:-8])
+        selects_folder_path, selects_folder_path[-13:-8])
 
-    return (selects_folder, metadata_csv_path)
+    selects_folder_string = re.search(
+        r'\d{2}_\d{2}_\d{4}_KY_STUDIO_\d{2}\w?_\d+_SELECTS',
+        selects_folder_path)
 
-# print(metadata_csv_path)
+    return (selects_folder_path, metadata_csv_path, selects_folder_string)
 
 def open_csv(csv_path):
     """loads the photoshoot app's csv file, returns only a list of SKU filenames"""
@@ -112,13 +114,13 @@ def load_file_names(selects_path):
     file_names = [file for file in dirs]
     return file_names
 
-def update_csv(csv_path, selects_folder_name):
+def update_csv(csv_path, selects_folder_path, selects_folder_string):
 
     new_rows = []
-    print(selects_folder_name)
+    print(selects_folder_path)
     selects_folder = re.search(
         r'\d{2}_\d{2}_\d{4}_KY_STUDIO_\d{2}\w?_\d+_SELECTS',
-        selects_folder_name)
+        selects_folder_path)
     #print(selects_folder.group(0))
 
     with open(csv_path, 'r') as csv_data:
@@ -128,7 +130,7 @@ def update_csv(csv_path, selects_folder_name):
 
         for row in reader:
             new_row = row
-            new_sku = "{}/{}".format(selects_folder.group(0), row[0])
+            new_sku = "{}/{}".format(selects_folder_string, row[0])
             new_row[0] = new_sku
             new_rows.append(new_row)
 
@@ -136,8 +138,6 @@ def update_csv(csv_path, selects_folder_name):
     with open(csv_path, 'w') as csv_output:
         writer = csv.writer(csv_output)
         writer.writerows(new_rows)
-
-    return selects_folder.group(0)
 
 def ingest_via_ingestsh(selects_folder_path):
     #This works! need to add a literal zm ingest call to get ingest stdout
@@ -252,16 +252,16 @@ def check_selects_folder(
 clear_screen()
 
 ARG_PATH = parse_the_args()
-SELECTS_FOLDER_PATH, METADATA_PATH = parse_paths(ARG_PATH)
+SELECTS_FOLDER_PATH, METADATA_PATH, SELECTS_FOLDER_STRING = parse_paths(ARG_PATH)
 
 CSV_FILE_NAMES = open_csv(METADATA_PATH)
 PROCESSED_FILE_NAMES = load_file_names(SELECTS_FOLDER_PATH)
 
-SELECT_FOLDER_NAME = update_csv(METADATA_PATH, SELECTS_FOLDER_PATH)
+update_csv(METADATA_PATH, SELECTS_FOLDER_PATH)
 
 DAM = VmLogin('username', 'password', 'environment')
 DAM.authenticate()
 
 if check_selects_folder(CSV_FILE_NAMES, PROCESSED_FILE_NAMES, SELECTS_FOLDER_PATH):
-    direct_ingest(SELECTS_FOLDER_PATH, 'environment', METADATA_PATH, SELECT_FOLDER_NAME)
-sys.exit()
+    direct_ingest(SELECTS_FOLDER_PATH, 'environment', METADATA_PATH, SELECTS_FOLDER_STRING)
+    sys.exit()
