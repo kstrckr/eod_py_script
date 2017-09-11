@@ -71,7 +71,7 @@ def parse_paths(path_arg=None):
     else:
         print('type QUIT to exit or,')
         selects_folder_path = raw_input('drag SELECTS folder into window and press ENTER: >>  ')
-        if selects_folder.lower() == 'quit':
+        if selects_folder_path.lower() == 'quit':
             exit()
         elif not selects_folder_path:
             clear_screen()
@@ -79,8 +79,10 @@ def parse_paths(path_arg=None):
             parse_paths()
         selects_folder_path = selects_folder_path.strip()
 
+    shoot_id = re.search(r'\d{5}', selects_folder_path)
+
     metadata_csv_path = '/{}/photoshoot_{}_metadata.csv'.format(
-        selects_folder_path, selects_folder_path[-13:-8])
+        selects_folder_path, shoot_id.group(0))
 
     selects_folder_string = re.search(
         r'\d{2}_\d{2}_\d{4}_KY_STUDIO_\d{2}\w?_\d+_SELECTS',
@@ -198,7 +200,8 @@ def direct_ingest(
         '{}/.'.format(selects_folder_name)
     ]
 
-    print_progress_bar(selects_folder_path, arg_list, num_of_files, 80)
+    print('ready to ingest')
+    #print_progress_bar(selects_folder_path, arg_list, num_of_files, 80)
     #import_proc = subprocess.Popen(arg_list, cwd='{}/..'.format(selects_folder_path))
     #print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
 
@@ -257,7 +260,7 @@ SELECTS_FOLDER_PATH, METADATA_PATH, SELECTS_FOLDER_STRING = parse_paths(ARG_PATH
 CSV_FILE_NAMES = open_csv(METADATA_PATH)
 PROCESSED_FILE_NAMES = load_file_names(SELECTS_FOLDER_PATH)
 
-update_csv(METADATA_PATH, SELECTS_FOLDER_PATH)
+update_csv(METADATA_PATH, SELECTS_FOLDER_PATH, SELECTS_FOLDER_STRING)
 
 DAM = VmLogin('username', 'password', 'environment')
 DAM.authenticate()
