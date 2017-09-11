@@ -88,7 +88,7 @@ def parse_paths(path_arg=None):
         r'\d{2}_\d{2}_\d{4}_KY_STUDIO_\d{2}\w?_\d+_SELECTS',
         selects_folder_path)
 
-    return (selects_folder_path, metadata_csv_path, selects_folder_string)
+    return (selects_folder_path, metadata_csv_path, selects_folder_string.group(0))
 
 def open_csv(csv_path):
     """loads the photoshoot app's csv file, returns only a list of SKU filenames"""
@@ -159,7 +159,7 @@ def print_progress_bar(selects_folder_path, arg_list, input_complete_length, bar
     proc = subprocess.Popen(arg_list, cwd='{}/..'.format(selects_folder_path), stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
     uploaded_filenames = []
     while proc.poll() is None:
-        line = proc.stdout.readline().decode()
+        line = proc.stderr.readline().decode()
         if line and re.match(r'\w*\sDone', line, re.I):
             file_name = re.search(r'(?P<filename>\d+_\w+\d?.jpg)', line, re.I)
             uploaded_filenames.append(file_name)
