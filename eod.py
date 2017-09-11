@@ -2,7 +2,7 @@
 
 #Kurt Strecker
 #kstrecker@gilt.com
-# v0.8 - 09/08/2017
+# v0.9 - 09/11/2017
 
 import csv
 import os
@@ -20,7 +20,8 @@ class VmLogin:
         self.environment = environment
 
     def authenticate(self):
-        subprocess.call([
+        print('Authenticating...')
+        subprocess.Popen([
             'zm',
             '-s',
             self.environment,
@@ -28,7 +29,8 @@ class VmLogin:
             self.user_name,
             '--password',
             self.password,
-            'getcredentials'])
+            'getcredentials'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
 
 class Spinner:
     def __init__(self):
@@ -183,7 +185,7 @@ def direct_ingest(
     print('ingestion started')
     message = 'studio ingestion 09/08/17'
     destination_path = "/Studio Transfer/Product/FIFO/"
-    num_of_files = len(PROCESSED_FILE_NAMES)
+    num_of_files = len(PROCESSED_FILE_NAMES) - 3
 
     arg_list = [
         'zm',
@@ -201,9 +203,8 @@ def direct_ingest(
     ]
 
     print('ready to ingest')
-    #print_progress_bar(selects_folder_path, arg_list, num_of_files, 80)
-    #import_proc = subprocess.Popen(arg_list, cwd='{}/..'.format(selects_folder_path))
-    #print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
+    print_progress_bar(selects_folder_path, arg_list, num_of_files, 80)
+    print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
 
 
 
