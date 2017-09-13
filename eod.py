@@ -21,7 +21,7 @@ class VmLogin:
 
     def authenticate(self):
         print('Authenticating...')
-        subprocess.Popen([
+        subprocess.call([
             'zm',
             '-s',
             self.environment,
@@ -83,7 +83,7 @@ def parse_paths(path_arg=None):
 
     shoot_id = re.search(r'\d{5}', selects_folder_path)
 
-    metadata_csv_path = '/{}/photoshoot_{}_metadata.csv'.format(
+    metadata_csv_path = ' {}/photoshoot_{}_metadata.csv'.format(
         selects_folder_path, shoot_id.group(0))
 
     selects_folder_string = re.search(
@@ -205,7 +205,7 @@ def direct_ingest(
 
     print('ready to ingest')
     print_progress_bar(selects_folder_path, arg_list, num_of_files, 80)
-    #print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
+    print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
 
 
 
@@ -229,8 +229,7 @@ def check_selects_folder(
 
         print("\033[32mNo Missing Files!\033[0m")
         return True
-        #subprocess.call(['ingest.sh', SELECTS_FOLDER_PATH])
-        #ingest_via_ingestsh(selects_folder_path)
+        
         #the empty new lines are included so you can see if the script has completed ingestion from across the room
         #print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
         #sys.exit()
@@ -259,14 +258,21 @@ clear_screen()
 ARG_PATH = parse_the_args()
 SELECTS_FOLDER_PATH, METADATA_PATH, SELECTS_FOLDER_STRING = parse_paths(ARG_PATH)
 
+# print(ARG_PATH)
+# print(SELECTS_FOLDER_PATH)
+# print(METADATA_PATH)
+# print(SELECTS_FOLDER_STRING)
+
 CSV_FILE_NAMES = open_csv(METADATA_PATH)
 PROCESSED_FILE_NAMES = load_file_names(SELECTS_FOLDER_PATH)
 
 update_csv(METADATA_PATH, SELECTS_FOLDER_PATH, SELECTS_FOLDER_STRING)
 
-DAM = VmLogin('username', 'password', 'environment')
+DAM = VmLogin('svc_dam_prod', '6XPX1tJHueUxUN1', 'EvolProd')
 DAM.authenticate()
 
+
+
 if check_selects_folder(CSV_FILE_NAMES, PROCESSED_FILE_NAMES, SELECTS_FOLDER_PATH):
-    direct_ingest(SELECTS_FOLDER_PATH, 'environment', METADATA_PATH, SELECTS_FOLDER_STRING)
+    direct_ingest(SELECTS_FOLDER_PATH, 'EvolProd', METADATA_PATH, SELECTS_FOLDER_STRING)
     sys.exit()
