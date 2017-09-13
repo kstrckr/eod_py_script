@@ -2,7 +2,7 @@
 
 #Kurt Strecker
 #kstrecker@gilt.com
-# v0.9 - 09/11/2017
+# v0.9 - 09/13/2017
 
 import csv
 import os
@@ -12,6 +12,11 @@ import argparse
 import re
 import math
 
+TEXT_COLOR = {
+    'green': '\033[32m',
+    'black': '\033[0m',
+    'red': '\033[31m'
+}
 
 class VmLogin:
     def __init__(self, user_name, password, environment):
@@ -20,7 +25,7 @@ class VmLogin:
         self.environment = environment
 
     def authenticate(self):
-        print('Authenticating...')
+        print('\nAuthenticating...')
         subprocess.call([
             'zm',
             '-s',
@@ -30,6 +35,7 @@ class VmLogin:
             '--password',
             self.password,
             'getcredentials'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print('Authenticated!')
         
 
 class Spinner:
@@ -106,7 +112,7 @@ def open_csv(csv_path):
               'Make sure the CSV is in the correct location and the path is correct:'.format(csv_path))
         user_prompt = raw_input('Press ENTER to try again or enter QUIT to exit: >>  ')
         if user_prompt.lower() == 'quit':
-            print("\033[32mEOD process ended\033[0m")
+            print("\033[32mEOD script exited\033[0m")
             exit()
         else:
             return open_csv(csv_path)
@@ -121,11 +127,9 @@ def load_file_names(selects_path):
 def update_csv(csv_path, selects_folder_path, selects_folder_string):
 
     new_rows = []
-    print(selects_folder_path)
     selects_folder = re.search(
         r'\d{2}_\d{2}_\d{4}_KY_STUDIO_\d{2}\w?_\d+_SELECTS',
         selects_folder_path)
-    #print(selects_folder.group(0))
 
     with open(csv_path, 'r') as csv_data:
         reader = csv.reader(csv_data)
@@ -143,19 +147,8 @@ def update_csv(csv_path, selects_folder_path, selects_folder_string):
         writer = csv.writer(csv_output)
         writer.writerows(new_rows)
 
-def ingest_via_ingestsh(selects_folder_path):
-    #This works! need to add a literal zm ingest call to get ingest stdout
-    proc = subprocess.Popen(['ingest.sh', selects_folder_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    while proc.poll() is None:
-        line = proc.stdout.readline()
-        if line:
-            print("\033[37m>>>{}\033[0m".format(line.strip()))
-
-
 def print_progress_bar(selects_folder_path, arg_list, input_complete_length, bar_display_length):
 
-    python_call = ['python', 'fake_input.py']
     spinner = Spinner()
     current_progress = 0
     proc = subprocess.Popen(arg_list, cwd='{}/..'.format(selects_folder_path), stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0)
@@ -171,7 +164,10 @@ def print_progress_bar(selects_folder_path, arg_list, input_complete_length, bar
             progress_bar_viz = '\033[42m{}\033[00m{}\n'.format('|' * int(progress_bar_now), '_' * (bar_display_length - int(progress_bar_now))) * 3
             spinner_viz = spinner.update_spinner()
             final_output = '[{}]\n{}/{} {}%\n{}'.format(spinner_viz, current_progress, input_complete_length, percent_complete, progress_bar_viz)
+            clear_screen()
             print(final_output)
+            if current_progress == input_complete_length:
+                print('please wait, finalizing ingest...')
 
 def direct_ingest(
         selects_folder_path,
@@ -179,8 +175,8 @@ def direct_ingest(
         csv_path,
         selects_folder_name):
 
-    print('ingestion started')
-    message = 'studio ingestion 09/08/17'
+    print('starting ingestion...')
+    message = 'studio ingestion 09/13/17'
     destination_path = "/Studio Transfer/Product/FIFO/"
     num_of_files = len(PROCESSED_FILE_NAMES)
     num_of_files -= 3
@@ -200,14 +196,8 @@ def direct_ingest(
         '{}/.'.format(selects_folder_name)
     ]
 
-    print('ready to ingest')
     print_progress_bar(selects_folder_path, arg_list, num_of_files, 80)
-    print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
-
-
-
-
-    sys.exit()
+    print("\033[37;42mINGEST COMPLETE{}{}".format(('\n' + ' ' * 15) * 5, TEXT_COLOR['black']))
 
 def check_selects_folder(
         csv_names,
@@ -224,16 +214,16 @@ def check_selects_folder(
 
     if not not_processed:
 
-        print("\033[32mNo Missing Files!\033[0m")
+        print("{}No Missing Files!{}".format(TEXT_COLOR['green'], TEXT_COLOR['black']))
         return True
         
         #the empty new lines are included so you can see if the script has completed ingestion from across the room
         #print("\033[37;42mINGEST COMPLETE{}\033[0m".format(('\n' + ' ' * 15) * 5))
         #sys.exit()
     else:
-        print('\033[31mThe folowing files are missing:\033[0m')
+        print('{}The folowing files are missing:{}'.format(TEXT_COLOR['red'], TEXT_COLOR['black']))
         for file_name in not_processed:
-            print('\033[31m{}\033[0m'.format(file_name))
+            print('{}{}{}}'.format(TEXST_COLOR['red'],file_name,TEXT_COLOR['black']))
 
         if named_wrong:
             print('\n\033[34mThe following files don\'t belong in the SELECTS folder\033[0m')
