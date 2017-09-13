@@ -265,11 +265,11 @@ PROCESSED_FILE_NAMES = load_file_names(SELECTS_FOLDER_PATH)
 
 update_csv(METADATA_PATH, SELECTS_FOLDER_PATH, SELECTS_FOLDER_STRING)
 
-DAM = VmLogin('svc_dam_prod', '6XPX1tJHueUxUN1', 'EvolProd')
+DAM = VmLogin('username', 'password', 'environment')
 DAM.authenticate()
 
 
 
 if check_selects_folder(CSV_FILE_NAMES, PROCESSED_FILE_NAMES, SELECTS_FOLDER_PATH):
-    direct_ingest(SELECTS_FOLDER_PATH, 'EvolProd', METADATA_PATH, SELECTS_FOLDER_STRING)
+    direct_ingest(SELECTS_FOLDER_PATH, 'environment', METADATA_PATH, SELECTS_FOLDER_STRING)
     sys.exit()
