@@ -83,7 +83,7 @@ def parse_paths(path_arg=None):
 
     shoot_id = re.search(r'\d{5}', selects_folder_path)
 
-    metadata_csv_path = ' {}/photoshoot_{}_metadata.csv'.format(
+    metadata_csv_path = '{}/photoshoot_{}_metadata.csv'.format(
         selects_folder_path, shoot_id.group(0))
 
     selects_folder_string = re.search(
@@ -169,12 +169,9 @@ def print_progress_bar(selects_folder_path, arg_list, input_complete_length, bar
             percent_complete = int(float(current_progress)/float(input_complete_length) * 100)
             progress_bar_now = math.floor((bar_display_length * 0.01) * percent_complete)
             progress_bar_viz = '\033[42m{}\033[00m{}\n'.format('|' * int(progress_bar_now), '_' * (bar_display_length - int(progress_bar_now))) * 3
-            #progress_bar_viz = '{}{}'.format('|' * current_progress, '_' * (bar_display_length - current_progress))
             spinner_viz = spinner.update_spinner()
             final_output = '[{}]\n{}/{} {}%\n{}'.format(spinner_viz, current_progress, input_complete_length, percent_complete, progress_bar_viz)
-            clear_screen()
             print(final_output)
-            #print("\033[37m{}\033[0m".format(line.strip()))
 
 def direct_ingest(
         selects_folder_path,
