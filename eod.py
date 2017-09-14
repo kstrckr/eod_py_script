@@ -23,6 +23,7 @@ class VmLogin:
         self.user_name = user_name
         self.password = password
         self.environment = environment
+        self.authenticate(self)
 
     def authenticate(self):
         print('\nAuthenticating...')
@@ -256,7 +257,7 @@ PROCESSED_FILE_NAMES = load_file_names(SELECTS_FOLDER_PATH)
 update_csv(METADATA_PATH, SELECTS_FOLDER_PATH, SELECTS_FOLDER_STRING)
 
 DAM = VmLogin('username', 'password', 'environment')
-DAM.authenticate()
+#DAM.authenticate()
 
 
 
